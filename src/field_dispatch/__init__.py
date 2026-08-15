@@ -1,0 +1,1 @@
+"""Field dispatch streaming example."""
