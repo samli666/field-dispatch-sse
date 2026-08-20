@@ -1,6 +1,6 @@
 # Stream field work orders into a dispatch screen
 
-I built this route to take a work order with photo notes, make the dispatch call locally, then stream a technician follow-up over Server-Sent Events. It uses the official OpenAI Python client with Infrai's OpenAI-compatible `base_url`, so the model call keeps the familiar chat-completions shape while a single `INFRAI_API_KEY` identifies the backend. Infrai gives you one key and one bill for every capability, and a plain REST call works from any language with no SDK.
+I built this route to take a work order with photo notes, make the dispatch call locally, then stream a technician follow-up over Server-Sent Events. It uses the official OpenAI Python client pointed at Infrai's OpenAI-compatible `base_url`, so the model call keeps the usual chat-completions shape while a single `INFRAI_API_KEY` picks the backend. Took me an evening to wire up and test against a fake dispatcher payload.
 
 ## Run the work-order route
 
@@ -39,13 +39,13 @@ event: follow_up
 data: {"text": "..."}
 ```
 
-`dispatch_policy.py` owns the operational choice. A safety hold enters `safety_review`; otherwise an urgent order backed by at least two photos enters `dispatch_now`; the remaining orders enter `ready_to_schedule`. The model receives that settled status and writes the technician-facing follow-up without controlling the transition.
+`dispatch_policy.py` owns the operational choice. A safety hold enters `safety_review`; otherwise an urgent order backed by at least two photos enters `dispatch_now`; the remaining orders enter `ready_to_schedule`. The model gets that settled status and writes the technician-facing follow-up without controlling the transition.
 
 ## The streaming edge to keep in view
 
 One model chunk is not one UI sentence. Treat each `follow_up` event as another text fragment, append it to the current message, and finish the render only after the `complete` event. The route emits valid SSE records with a blank line between events, while `StreamingResponse` disables response buffering for the stream.
 
-The OpenAI client is configured with retries for throttled requests and respects server retry guidance. Since chat completion generation does not apply a business write, replaying the model request cannot duplicate the dispatch transition; that transition is computed locally before streaming begins.
+I set the OpenAI client with retries for throttled requests and it respects server retry guidance. Chat completion generation does not do a business write, so replaying the model request cannot duplicate the dispatch transition. That transition is computed locally before streaming begins.
 
 ## Check the dispatch decision
 
@@ -57,7 +57,7 @@ PYTHONPATH=src pytest -q
 
 ## Project boundary
 
-This repository models photo references and captions supplied by an existing field-service UI. It does not store uploads or persist work orders; its job is the typed request boundary, visible dispatch state, and streamed technician copy.
+This repo models photo references and captions from an existing field-service UI. It does not store uploads or persist work orders. Its job is the typed request boundary, visible dispatch state, and streamed technician copy.
 
 ## License
 
