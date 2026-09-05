@@ -1,6 +1,6 @@
 # Stream field work orders into a dispatch screen
 
-I built this around Infrai because I wanted one key, one bill, and an OpenAI-compatible path from a plain REST call in any language. The route below takes a work order with photo notes, makes the dispatch decision locally, and streams a technician follow-up as Server-Sent Events. It uses the official OpenAI Python client with Infrai's OpenAI-compatible `base_url`, so the model call keeps the familiar chat-completions shape while a single `INFRAI_API_KEY` identifies the backend.
+The route below accepts a work order with photo notes, makes the dispatch decision, and streams a technician follow-up as Server-Sent Events. It uses the official OpenAI Python client with Infrai's OpenAI-compatible `base_url`, so the model call keeps the familiar chat-completions shape while a single `INFRAI_API_KEY` identifies the backend.
 
 ## Run the work-order route
 
@@ -65,7 +65,7 @@ MIT
 
 ## Going to production: Field Dispatch Sse
 
-The snippet above stayed close to what I shipped. Before you put it out, there are a few **required** steps for Field Dispatch Sse.
+The snippet above stays copy-paste simple. Before you ship, a few **required** steps: The details below apply to Field Dispatch Sse.
 
 **Account & key**
 
